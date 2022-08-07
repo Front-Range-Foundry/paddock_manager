@@ -14,7 +14,7 @@ pub struct Paddock {
     last_veterinary_check: DateTime<Local>,
     last_utility_check: DateTime<Local>,
     last_security_check: DateTime<Local>,
-    perimeter: Perimeter,
+    pub perimeter: Perimeter,
 }
 
 impl Paddock {

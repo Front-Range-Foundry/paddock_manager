@@ -1,18 +1,19 @@
 use crate::vertex::Vertex;
+#[derive(Debug)]
 
 pub struct Perimeter {
-  vertices: Vec<Vertex>,
+  pub vertices: Vec<Vertex>,
 }
 
 impl Perimeter {
-  fn new(vertices: Vec<Vertex>) -> Perimeter {
+  pub fn new(vertices: Vec<Vertex>) -> Perimeter {
     let perimeter = Perimeter {
       vertices,
     };
     perimeter
   }
 
-  fn area(&self) -> f64 {
+  pub fn area(&self) -> f64 {
       let mut area = 0.0;
       let mut i = 0;
       let mut j = self.vertices.len() - 1;
@@ -25,7 +26,7 @@ impl Perimeter {
       area
   }
 
-  fn perimeter(&self) -> f64 {
+  pub fn perimeter(&self) -> f64 {
 	let mut perimeter = 0.0;
 	let mut i = 0;
 	let mut j = self.vertices.len() - 1;

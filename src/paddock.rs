@@ -1,5 +1,6 @@
 use uuid::{Uuid}; 
-use chrono::{offset::{Local}, DateTime, TimeZone};
+use chrono::{offset::{Local}, DateTime};
+use crate::perimeter::Perimeter;
 
 #[derive(Debug)]
 
@@ -12,11 +13,12 @@ pub struct Paddock {
     last_updated: DateTime<Local>,
     last_veterinary_check: DateTime<Local>,
     last_utility_check: DateTime<Local>,
-    last_security_check: DateTime<Local>
+    last_security_check: DateTime<Local>,
+    pub perimeter: Perimeter,
 }
 
 impl Paddock {
-  pub fn new(sqft: u32, is_powered: bool) -> Paddock {
+  pub fn new(sqft: u32, is_powered: bool, perimeter: Perimeter) -> Paddock {
     let datetime = Local::now();
     let paddock = Paddock {
       id: Uuid::new_v4(),
@@ -28,6 +30,7 @@ impl Paddock {
       last_veterinary_check: datetime,
       last_security_check: datetime,
       last_utility_check: datetime,
+      perimeter
     };
     paddock
   }
@@ -82,11 +85,19 @@ impl Paddock {
 
 #[cfg(test)]
 mod tests {
-  use super::*; 
+  use crate::{perimeter::Perimeter, vertex::Vertex};
+
+use super::*; 
 
   #[test] 
   fn it_can_be_created() {
-    let paddock = Paddock::new(100, true);
+    let perimeter = Perimeter::new(vec![
+      Vertex::new(100.0, 100.0),
+      Vertex::new(200.0, 100.0),
+      Vertex::new(200.0, 200.0),
+      Vertex::new(100.0, 200.0),
+    ]);
+    let paddock = Paddock::new(100, true, perimeter);
     assert_eq!(paddock.square_footage, 100);
     assert_eq!(paddock.is_powered, true);
     assert_eq!(paddock.staff_assigned, Vec::new());
@@ -94,9 +105,15 @@ mod tests {
   
   #[test]
   fn paddock_timestamps() {
+    let perimeter = Perimeter::new(vec![
+      Vertex::new(100.0, 100.0),
+      Vertex::new(200.0, 100.0),
+      Vertex::new(200.0, 200.0),
+      Vertex::new(100.0, 200.0),
+    ]);
     // runs too small to compare with external timestamp
     // so just using a pilot initializing value and checking other timestamps against the pilot.
-    let paddock = Paddock::new(100, true);
+    let paddock = Paddock::new(100, true, perimeter);
     let generated_timestamp = paddock.created;
     assert_eq!(paddock.last_updated, generated_timestamp);
     assert_eq!(paddock.last_veterinary_check, generated_timestamp);
@@ -106,7 +123,14 @@ mod tests {
 
   #[test]
   fn updating_timestamps_with_functions() {
-    let mut paddock = Paddock::new(100, true);    
+    let perimeter = Perimeter::new(vec![
+      Vertex::new(100.0, 100.0),
+      Vertex::new(200.0, 100.0),
+      Vertex::new(200.0, 200.0),
+      Vertex::new(100.0, 200.0),
+    ]);
+
+    let mut paddock = Paddock::new(100, true, perimeter);    
     let new_vet_update = paddock.report_veterinary_check();
     assert_eq!(new_vet_update, paddock.last_veterinary_check());
 
@@ -118,5 +142,19 @@ mod tests {
 
     // finally, ensure the update field is commensurate with the most recent edit. 
     assert_eq!(new_ute_update, paddock.last_updated());
+  }
+
+  #[test]
+  fn it_can_be_given_a_perimeter() {
+    let vertices: Vec<Vertex> = vec![
+      Vertex::new(0.0, 0.0),
+      Vertex::new(0.0, 1.0),
+      Vertex::new(1.0, 1.0),
+      Vertex::new(1.0, 0.0),
+    ];
+    let perimeter = Perimeter::new(vertices);
+    let paddock = Paddock::new(100, true, perimeter);
+    assert_eq!(paddock.perimeter.area(), 1.0);
+    assert_eq!(paddock.perimeter.perimeter(), 4.0);
   }
 }

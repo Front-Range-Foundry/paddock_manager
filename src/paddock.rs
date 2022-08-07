@@ -16,7 +16,7 @@ pub struct Paddock {
 }
 
 impl Paddock {
-  fn new(sqft: u32, is_powered: bool) -> Paddock {
+  pub fn new(sqft: u32, is_powered: bool) -> Paddock {
     let datetime = Local::now();
     let paddock = Paddock {
       id: Uuid::new_v4(),
@@ -31,6 +31,53 @@ impl Paddock {
     };
     paddock
   }
+
+  pub fn created(&self) -> DateTime<Local> {
+    self.created
+  }
+
+  pub fn last_updated(&self) -> DateTime<Local> {
+    self.last_updated
+  }
+
+  pub fn last_veterinary_check(&self) -> DateTime<Local> {
+    self.last_veterinary_check
+  }
+
+  pub fn last_utility_check(&self) -> DateTime<Local> {
+    self.last_utility_check
+  }
+
+  pub fn last_security_check(&self) -> DateTime<Local> {
+    self.last_security_check
+  }
+
+  fn report_update(&mut self, field: &str) {
+    self.last_updated = Local::now();
+
+    match field { 
+      "veterinary" => self.last_veterinary_check = self.last_updated,
+      "utility" => self.last_utility_check = self.last_updated,
+      "security" => self.last_security_check = self.last_updated,
+      _ => {}
+    }
+  }
+
+  pub fn report_security_check(&mut self) -> DateTime<Local> {
+    self.report_update("security");
+    self.last_security_check
+  }
+
+  pub fn report_utility_check(&mut self) -> DateTime<Local> {
+    self.report_update("utility");
+    self.last_utility_check
+  }
+
+  pub fn report_veterinary_check(&mut self) -> DateTime<Local> {
+    self.report_update("veterinary");
+    self.last_veterinary_check
+  }
+
 }
 
 #[cfg(test)]
@@ -55,5 +102,21 @@ mod tests {
     assert_eq!(paddock.last_veterinary_check, generated_timestamp);
     assert_eq!(paddock.last_security_check, generated_timestamp);
     assert_eq!(paddock.last_utility_check, generated_timestamp);
+  }
+
+  #[test]
+  fn updating_timestamps_with_functions() {
+    let mut paddock = Paddock::new(100, true);    
+    let new_vet_update = paddock.report_veterinary_check();
+    assert_eq!(new_vet_update, paddock.last_veterinary_check());
+
+    let new_sec_update = paddock.report_security_check();
+    assert_eq!(new_sec_update, paddock.last_security_check());
+
+    let new_ute_update = paddock.report_utility_check();
+    assert_eq!(new_ute_update, paddock.last_utility_check());
+
+    // finally, ensure the update field is commensurate with the most recent edit. 
+    assert_eq!(new_ute_update, paddock.last_updated());
   }
 }

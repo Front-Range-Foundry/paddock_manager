@@ -1,5 +1,5 @@
 use uuid::{Uuid}; 
-use chrono::{offset::{Local}, DateTime, TimeZone};
+use chrono::{offset::{Local}, DateTime};
 
 #[derive(Debug)]
 

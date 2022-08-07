@@ -1,5 +1,6 @@
 pub mod paddock;
 pub mod paddock_manager;
+pub mod vertex;
 
 pub mod sup {
     pub fn init() {

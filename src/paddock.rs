@@ -8,11 +8,11 @@ pub struct Paddock {
     pub square_footage: u32,
     pub is_powered: bool,
     pub staff_assigned: Vec<Uuid>,
-    pub created: DateTime<Local>,
-    pub last_updated: DateTime<Local>,
-    pub last_veterinary_check: DateTime<Local>,
-    pub last_utility_check: DateTime<Local>,
-    pub last_security_check: DateTime<Local>
+    created: DateTime<Local>,
+    last_updated: DateTime<Local>,
+    last_veterinary_check: DateTime<Local>,
+    last_utility_check: DateTime<Local>,
+    last_security_check: DateTime<Local>
 }
 
 impl Paddock {

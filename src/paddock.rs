@@ -1,6 +1,7 @@
 use uuid::{Uuid}; 
 use chrono::{offset::{Local}, DateTime};
-use crate::perimeter::Perimeter;
+use crate::{perimeter::Perimeter};
+use vertex::Vertex;
 
 #[derive(Debug)]
 
@@ -15,6 +16,7 @@ pub struct Paddock {
     last_utility_check: DateTime<Local>,
     last_security_check: DateTime<Local>,
     pub perimeter: Perimeter,
+    pub gates: Vec<(Vertex, Vertex)>,
 }
 
 impl Paddock {
@@ -30,7 +32,8 @@ impl Paddock {
       last_veterinary_check: datetime,
       last_security_check: datetime,
       last_utility_check: datetime,
-      perimeter
+      perimeter,
+      gates: Vec::new(),
     };
     paddock
   }
@@ -81,11 +84,16 @@ impl Paddock {
     self.last_veterinary_check
   }
 
+  pub fn add_gate(&mut self, pos1: Vertex, pos2: Vertex) {
+    let gate = (pos1, pos2);
+    self.gates.push(gate);
+  }
+
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::{perimeter::Perimeter, vertex::Vertex};
+  use crate::{perimeter::Perimeter};
 
 use super::*; 
 
@@ -156,5 +164,30 @@ use super::*;
     let paddock = Paddock::new(100, true, perimeter);
     assert_eq!(paddock.perimeter.area(), 1.0);
     assert_eq!(paddock.perimeter.perimeter(), 4.0);
+  }
+
+  #[test]
+  fn it_can_be_given_gates() {
+    let vertices: Vec<Vertex> = vec![
+      Vertex::new(0.0, 0.0),
+      Vertex::new(0.0, 1.0),
+      Vertex::new(1.0, 1.0),
+      Vertex::new(1.0, 0.0),
+    ];
+
+    let perimeter = Perimeter::new(vertices);
+    let mut paddock = Paddock::new(100, true, perimeter);
+
+    paddock.add_gate(Vertex::new(0.0, 0.0), Vertex::new(0.0, 0.1));
+    assert_eq!(paddock.gates.len(), 1);
+    let (start, end) = &paddock.gates[0];
+    assert_eq!(start.x, 0.0);
+    assert_eq!(start.y, 0.0);
+    assert_eq!(end.x, 0.0);
+    assert_eq!(end.y, 0.1);
+  }
+
+  fn it_errors_when_gate_has_invalid_coordinates() {
+
   }
 }

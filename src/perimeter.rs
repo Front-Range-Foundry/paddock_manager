@@ -1,4 +1,5 @@
-use crate::vertex::Vertex;
+use vertex::Vertex;
+
 #[derive(Debug)]
 
 pub struct Perimeter {
